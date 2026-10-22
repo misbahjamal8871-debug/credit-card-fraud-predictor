@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ML Web App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .box { margin-bottom: 30px; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        input { display: block; margin: 5px 0 15px 0; padding: 8px; width: 250px; }
+        button { padding: 10px 15px; background: #007BFF; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h2>Credit Card Fraud & Velocity Prediction App</h2>
+
+    <!-- Regression Form -->
+    <div class="box">
+        <h3>1. Regression Model (Predict Velocity Score)</h3>
+        <form id="regForm">
+            <label>Txn Count Last 24h:</label>
+            <input type="number" id="reg_txn" value="2" required>
+            <label>Customer Age:</label>
+            <input type="number" id="reg_age" value="30" required>
+            <label>Card Age Months:</label>
+            <input type="number" id="reg_card" value="24" required>
+            <label>Distance From Home (km):</label>
+            <input type="number" step="any" id="reg_dist" value="10.5" required>
+            <label>CVV Retry Count:</label>
+            <input type="number" id="reg_cvv" value="0" required>
+            <button type="submit">Predict Regression</button>
+        </form>
+        <p><strong>Result:</strong> <span id="regResult">-</span></p>
+    </div>
+
+    <!-- Classification Form -->
+    <div class="box">
+        <h3>2. Classification Model (Predict Fraud: 0 or 1)</h3>
+        <form id="clfForm">
+            <label>Txn Count Last 24h:</label>
+            <input type="number" id="clf_txn" value="5" required>
+            <label>Customer Age:</label>
+            <input type="number" id="clf_age" value="45" required>
+            <label>Card Age Months:</label>
+            <input type="number" id="clf_card" value="12" required>
+            <label>Distance From Home (km):</label>
+            <input type="number" step="any" id="clf_dist" value="50.0" required>
+            <label>CVV Retry Count:</label>
+            <input type="number" id="clf_cvv" value="2" required>
+            <button type="submit">Predict Classification</button>
+        </form>
+        <p><strong>Result:</strong> <span id="clfResult">-</span></p>
+    </div>
+
+    <script>
+        // Handle Regression Form Submit
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                txn_count_last_24h: parseFloat(document.getElementById('reg_txn').value),
+                customer_age: parseFloat(document.getElementById('reg_age').value),
+                card_age_months: parseFloat(document.getElementById('reg_card').value),
+                distance_from_home_km: parseFloat(document.getElementById('reg_dist').value),
+                cvv_retry_count: parseFloat(document.getElementById('reg_cvv').value)
+            };
+
+            const response = await fetch('http://127.0.0.1:5000/predict/regression', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            document.getElementById('regResult').innerText = result.prediction;
+        });
+
+        // Handle Classification Form Submit
+        document.getElementById('clfForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                txn_count_last_24h: parseFloat(document.getElementById('clf_txn').value),
+                customer_age: parseFloat(document.getElementById('clf_age').value),
+                card_age_months: parseFloat(document.getElementById('clf_card').value),
+                distance_from_home_km: parseFloat(document.getElementById('clf_dist').value),
+                cvv_retry_count: parseFloat(document.getElementById('clf_cvv').value)
+            };
+
+            const response = await fetch('http://127.0.0.1:5000/predict/classification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            document.getElementById('clfResult').innerText = result.prediction;
+        });
+    </script>
+</body>
+</html>

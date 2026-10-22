@@ -1,0 +1,33 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import r2_score, accuracy_score
+import joblib
+
+# Loading dataset
+df = pd.read_csv('credit_card_fraud_2026.csv')
+
+#Selecting simple numeric features
+features = ['txn_count_last_24h', 'customer_age', 'card_age_months', 'distance_from_home_km', 'cvv_retry_count']
+
+#REGRESSION MODEL 
+X_reg = df[features]
+y_reg = df['velocity_score']
+X_tr, X_te, y_tr, y_te = train_test_split(X_reg, y_reg, test_size=0.2, random_state=42)
+
+reg_model = LinearRegression()
+reg_model.fit(X_tr, y_tr)
+print("Regression R² Score:", r2_score(y_te, reg_model.predict(X_te)))
+joblib.dump(reg_model, 'regression_model.pkl')
+
+#CLASSIFICATION MODEL
+X_clf = df[features]
+y_clf = df['is_fraud']
+X_tr_c, X_te_c, y_tr_c, y_te_c = train_test_split(X_clf, y_clf, test_size=0.2, random_state=42)
+
+clf_model = LogisticRegression()
+clf_model.fit(X_tr_c, y_tr_c)
+print("Classification Accuracy:", accuracy_score(y_te_c, clf_model.predict(X_te_c)))
+joblib.dump(clf_model, 'classification_model.pkl')
+
+print("Both models saved successfully!")
